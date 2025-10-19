@@ -17,13 +17,13 @@ df["avg_pace_min"] = df["avg_pace_per_km"].apply(pace_to_minutes)
 
 # Defining the activity type (gawagawa)
 def classify_activity(row):
-    if row["distance_km"] < 0.5 and row["steps"] < 500:
+    if row["distance_km"] < 0.5 and row["steps"] < 300:
         return "Sitting"
-    elif row["distance_km"] < 3 and row["avg_pace_min"] >= 10:
+    elif row["distance_km"] < 3 and row["avg_pace_min"] >= 2:
         return "Walk"
-    elif row["distance_km"] >= 5 and row["avg_pace_min"] < 5:
+    elif row["distance_km"] >= 8 and row["avg_pace_min"] < 10:
         return "Ride"
-    elif row["distance_km"] >= 3 and row["avg_pace_min"] < 10:
+    elif row["distance_km"] >= 3 and row["avg_pace_min"] < 5:
         return "Run"
 
 df["activity_type"] = df.apply(classify_activity, axis=1)
