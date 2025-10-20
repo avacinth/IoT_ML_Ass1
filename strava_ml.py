@@ -25,6 +25,8 @@ def classify_activity(row):
         return "Ride"
     elif row["distance_km"] >= 3 and row["avg_pace_min"] < 5:
         return "Run"
+    else:
+        return "Unknown"
 
 df["activity_type"] = df.apply(classify_activity, axis=1)
 
