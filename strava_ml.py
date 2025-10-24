@@ -2,10 +2,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
-# Load data
+# Load dataset
 df = pd.read_csv("strava_data.csv")
 
-# Converting (mm:ss) to minutes
+# Convert pace (mm:ss) to minutes
 def pace_to_minutes(pace):
     try:
         m, s = map(float, pace.split(":"))
@@ -15,35 +15,31 @@ def pace_to_minutes(pace):
 
 df["avg_pace_min"] = df["avg_pace_per_km"].apply(pace_to_minutes)
 
-# Defining the activity type (gawagawa)
-def classify_activity(row):
-    if row["distance_km"] < 0.5 and row["steps"] < 300:
-        return "Sitting"
-    elif row["distance_km"] < 3 and row["avg_pace_min"] >= 2:
-        return "Walk"
-    elif row["distance_km"] >= 8 and row["avg_pace_min"] < 10:
-        return "Ride"
-    elif row["distance_km"] >= 3 and row["avg_pace_min"] < 5:
-        return "Run"
-    else:
-        return "Unknown"
+# Convert elapsed time (hh:mm:ss) to minutes
+def time_to_minutes(t):
+    try:
+        h, m, s = map(float, t.split(":"))
+        return h * 60 + m + s / 60
+    except:
+        return None
 
-df["activity_type"] = df.apply(classify_activity, axis=1)
+df["elapsed_time_min"] = df["elapsed_time_hh:mm:ss"].apply(time_to_minutes)
 
-# Printing the given data and the results (activity_type)
-features = ["distance_km", "avg_pace_min", "elapsed_time_min", "steps"]
+df["steps"] = df["steps"].replace({",": ""}, regex=True).astype(float)
+
+features = ["distance_km", "avg_pace_min", "elapsed_time_min", "steps"] # Independent variables
 X = df[features]
-y = df["activity_type"]
+y = df["sport_type"]  # Dependent variable
 
-# Splitting the data per column
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
+# Training the model
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# Predict the activity type for all data
-df["predicted_activity"] = model.predict(X)
+# Predict sport type using the model
+df["predicted_sport_type"] = model.predict(X)
 
-# Printing the predicted activity
-result = df[["activity_id", "distance_km", "avg_pace_min", "steps", "predicted_activity"]]
+# Print results
+result = df[["activity_id", "distance_km", "avg_pace_min", "elapsed_time_min", "steps", "predicted_sport_type"]]
 print(result.to_string(index=False))
