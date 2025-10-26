@@ -3,33 +3,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
 # Load dataset
-df = pd.read_csv("strava_data.csv")
+df = pd.read_csv("strava_data_1.csv")
 
-# Convert pace (mm:ss) to minutes
-def pace_to_minutes(pace):
-    try:
-        m, s = map(float, pace.split(":"))
-        return m + s / 60
-    except:
-        return None
+df["Activity ID"] = range(1, len(df) + 1)
 
-df["avg_pace_min"] = df["avg_pace_per_km"].apply(pace_to_minutes)
+df["Total Steps"] = df["Total Steps"].replace({",": ""}, regex=True).astype(float)
 
-# Convert elapsed time (hh:mm:ss) to minutes
-def time_to_minutes(t):
-    try:
-        h, m, s = map(float, t.split(":"))
-        return h * 60 + m + s / 60
-    except:
-        return None
-
-df["elapsed_time_min"] = df["elapsed_time_hh:mm:ss"].apply(time_to_minutes)
-
-df["steps"] = df["steps"].replace({",": ""}, regex=True).astype(float)
-
-features = ["distance_km", "avg_pace_min", "elapsed_time_min", "steps"] # Independent variables
+features = ["Distance", "Average Speed", "Elapsed Time", "Elevation Gain", "Total Steps"] # Independent variables
 X = df[features]
-y = df["sport_type"]  # Dependent variable
+y = df["Activity Type"]  # Dependent variable
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
@@ -38,8 +20,8 @@ model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
 # Predict sport type using the model
-df["predicted_sport_type"] = model.predict(X)
+df["Predicted Activity Type"] = model.predict(X)
 
 # Print results
-result = df[["activity_id", "distance_km", "avg_pace_min", "elapsed_time_min", "steps", "predicted_sport_type"]]
+result = df[["Activity ID", "Distance", "Average Speed", "Elapsed Time", "Elevation Gain", "Total Steps", "Predicted Activity Type"]]
 print(result.to_string(index=False))
