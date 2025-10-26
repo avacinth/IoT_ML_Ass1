@@ -1,4 +1,4 @@
-start_date_local,type,name,distance,moving_time,total_elevation_gain,average_speed,max_speed,average_heartrate,max_heartrate
+start_date_local,type,name,Distance,Moving Time,Elevation Gain,Average Speed,Max Speed,average_heartrate,max_heartrate
 2022-11-18T08:38:29Z,Walk,Morning Walk,3563.3,2122,99.0,1.679,5.622,100.8,130.0
 2022-11-17T16:06:02Z,Ride,Evening Ride,30646.5,5742,130.0,5.337,12.612,121.1,166.0
 2022-11-15T17:42:54Z,Ride,Evening Ride,34271.7,5653,118.0,6.063,10.222,121.5,167.0
