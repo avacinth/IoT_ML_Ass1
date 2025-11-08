@@ -3,16 +3,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
 # Load dataset
-df = pd.read_csv("public_dataset.csv")
+df = pd.read_csv("FINALdataset.csv")
 
-df["start_date_local"] = range(1, len(df) + 1)
-
-#df["Total Steps"] = df["Total Steps"].replace({",": ""}, regex=True).astype(float)
-
-features = ["Distance", "Moving Time", "Elevation Gain", "Average Speed", "average_heartrate"] # Independent variables
+features = ["Distance_km", "Elapsed Time", "Moving Time", "Elevation Gain", "Average Speed", "Calories", "Average Heart Rate"] # Independent variables
 X = df[features]
-y = df["type"]  # Dependent variable
+y = df["Activity Type"]  # Dependent/Target variable
 
+# Splitting the data for training
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # Training the model
@@ -23,5 +20,10 @@ model.fit(X_train, y_train)
 df["Predicted Activity Type"] = model.predict(X)
 
 # Print results
-result = df[["Distance", "Moving Time", "Elevation Gain", "Average Speed", "average_heartrate", "Predicted Activity Type"]]
+result = df[["Distance_km", "Elapsed Time", "Moving Time",
+              "Elevation Gain", "Average Speed", "Calories",
+              "Average Heart Rate", "Predicted Activity Type"]].copy()
+result.insert(0, "Activity ID", range(1, len(result) + 1))  #Created an Activity ID column
+
+# Print results
 print(result.to_string(index=False))
