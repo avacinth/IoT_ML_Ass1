@@ -44,7 +44,7 @@ plt.tight_layout()
 plt.show()
 
 # Classification Report
-print("\nCLASSIFICATION REPORT\n")
+print("\nClassification Report\n")
 print(classification_report(y_test, y_pred)) # Show precision, recall, f1-score per class
 
 # Accuracy Chart
@@ -52,14 +52,16 @@ accuracy_per_class = cm.diagonal() / cm.sum(axis=1)  # Accuracy per class
 class_names = model.classes_
 
 overall_accuracy = accuracy_score(y_test, y_pred)  # Overall model accuracy
+overall_accuracy_pct = overall_accuracy * 100  # Convert to percentage
 
 plt.figure(figsize=(8, 6))
 plt.plot(class_names, accuracy_per_class, marker='o', linestyle='-', color='green', linewidth=2, label='Per-Class Accuracy')
-plt.axhline(y=overall_accuracy, color='red', linestyle='--', linewidth=2, label=f'Overall Accuracy ({overall_accuracy:.2f})')
+plt.axhline(y=overall_accuracy, color='red', linestyle='--', linewidth=2, label=f'Overall Accuracy ({overall_accuracy_pct:.2f}%)')
 
 # Add value labels above points
 for i, v in enumerate(accuracy_per_class):
     plt.text(i, v + 0.02, f"{v:.2f}", ha='center')
+    
 plt.title("Accuracy Chart")
 plt.xlabel("Activity Type")
 plt.ylabel("Accuracy")
@@ -69,4 +71,4 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-print(f"\nOverall Model Accuracy: {overall_accuracy:.3f}")  # Print overall accuracy
+print(f"\nOverall Model Accuracy: {overall_accuracy_pct:.2f}%")  # Print overall accuracy
