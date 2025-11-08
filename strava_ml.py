@@ -20,9 +20,7 @@ model.fit(X_train, y_train)
 df["Predicted Activity Type"] = model.predict(X)
 
 # Print results
-result = df[["Distance_km", "Elapsed Time", "Moving Time",
-              "Elevation Gain", "Average Speed", "Calories",
-              "Average Heart Rate", "Predicted Activity Type"]].copy()
+result = df[["Distance_km", "Elapsed Time", "Moving Time", "Elevation Gain", "Average Speed", "Calories", "Average Heart Rate", "Predicted Activity Type"]].copy()
 result.insert(0, "Activity ID", range(1, len(result) + 1))  #Created an Activity ID column
 
 # Print results
