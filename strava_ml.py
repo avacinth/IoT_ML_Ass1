@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -6,7 +7,7 @@ import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
 # Load dataset
-df = pd.read_csv("FINALdataset.csv")
+df = pd.read_csv("FINALpublicdataset.csv")
 
 features = ["Distance_km", "Elapsed Time", "Moving Time", "Elevation Gain", "Average Speed", "Calories", "Average Heart Rate"]
 X = df[features]  # Independent variables
@@ -31,10 +32,10 @@ print(result.to_string(index=False))
 y_pred = model.predict(X_test)
 
 # Confusion Matrix
-cm = confusion_matrix(y_test, y_pred)  # Compute confusion matrix
+cm = confusion_matrix(y_test, y_pred, labels=model.classes_)  # Compute confusion matrix
 
 plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+sns.heatmap(cm, annot=True, fmt='d', cmap='Purples',
             xticklabels=model.classes_,
             yticklabels=model.classes_)
 plt.title("Confusion Matrix")
@@ -45,14 +46,20 @@ plt.show()
 
 # Classification Report
 print("\nClassification Report\n")
-print(classification_report(y_test, y_pred)) # Show precision, recall, f1-score per class
+print(classification_report(y_test, y_pred, labels=model.classes_, zero_division=0)) # Verify labels to ensure the report matches the classes
 
 # Accuracy Chart
-accuracy_per_class = cm.diagonal() / cm.sum(axis=1)  # Accuracy per class
+row_sums = cm.sum(axis=1)
+accuracy_per_class = np.divide(
+    cm.diagonal(), 
+    row_sums, 
+    out=np.zeros_like(cm.diagonal(), dtype=float), 
+    where=row_sums != 0)
+
 class_names = model.classes_
 
-overall_accuracy = accuracy_score(y_test, y_pred)  # Overall model accuracy
-overall_accuracy_pct = overall_accuracy * 100  # Convert to percentage
+overall_accuracy = accuracy_score(y_test, y_pred)
+overall_accuracy_pct = overall_accuracy * 100
 
 plt.figure(figsize=(8, 6))
 plt.plot(class_names, accuracy_per_class, marker='o', linestyle='-', color='green', linewidth=2, label='Per-Class Accuracy')
