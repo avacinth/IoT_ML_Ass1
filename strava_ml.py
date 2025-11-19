@@ -1,35 +1,56 @@
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
-# Load dataset
-df = pd.read_csv("FINALpublicdataset.csv")
+# 1.  Load dataset
+df_train = pd.read_csv("FINALpublicdataset.csv")  # Training Data
+df_test = pd.read_csv("FINALdataset.csv")  # Testing Data
 
 features = ["Distance_km", "Elapsed Time", "Moving Time", "Elevation Gain", "Average Speed", "Calories", "Average Heart Rate"]
-X = df[features]  # Independent variables
-y = df["Activity Type"]  # Dependent/Target variable
+X_train = df_train[features]  # Independent variables
+y_train = df_train["Activity Type"]  # Dependent/Target variable
 
-# Splitting the data for training
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# Testing the data
+X_test = df_test[features]
+y_test = df_test["Activity Type"]
 
-# Train the model
-model = RandomForestClassifier(n_estimators=100, random_state=42)
+# 2.  Visualization: Training vs Testing Data Distribution
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# Training Data
+sns.countplot(y=df_train["Activity Type"], ax=axes[0], order=df_train["Activity Type"].value_counts().index, palette="Blues")
+axes[0].set_title("TRAINING Data\n(FINALpublicdataset.csv)")
+axes[0].set_xlabel("Count")
+axes[0].grid(axis='x', alpha=0.3)
+
+# Testing Data
+sns.countplot(y=df_test["Activity Type"], ax=axes[1], order=df_test["Activity Type"].value_counts().index, palette="Oranges")
+axes[1].set_title("TESTING Data\n(FINALdataset.csv)")
+axes[1].set_xlabel("Count")
+axes[1].grid(axis='x', alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# 3.  Train the model
+model = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced')
 model.fit(X_train, y_train)
 
-# Predict activity type
-df["Predicted Activity Type"] = model.predict(X)
+# 4.  Predict activity type on the TEST dataset
+df_test["Predicted Activity Type"] = model.predict(X_test)
 
 # Print results
-result = df[["Distance_km", "Elapsed Time", "Moving Time", "Elevation Gain", "Average Speed", "Calories", "Average Heart Rate", "Predicted Activity Type"]].copy()
+result = df_test[["Distance_km", "Elapsed Time", "Moving Time", "Elevation Gain", "Average Speed", "Calories", "Average Heart Rate", "Predicted Activity Type"]].copy()
 result.insert(0, "Activity ID", range(1, len(result) + 1))  #Created an Activity ID column
+print("Prediction Results on the TEST dataset")
 print(result.to_string(index=False))
 
-# Predict on test set for evaluation
-y_pred = model.predict(X_test)
+# 5.  Accuracy & Metrics
+
+y_pred = df_test["Predicted Activity Type"]
 
 # Confusion Matrix
 cm = confusion_matrix(y_test, y_pred, labels=model.classes_)  # Compute confusion matrix
@@ -49,33 +70,33 @@ print("\nClassification Report\n")
 print(classification_report(y_test, y_pred, labels=model.classes_, zero_division=0)) # Verify labels to ensure the report matches the classes
 
 # Accuracy Chart
-row_sums = cm.sum(axis=1)
-accuracy_per_class = np.divide(
-    cm.diagonal(), 
-    row_sums, 
-    out=np.zeros_like(cm.diagonal(), dtype=float), 
-    where=row_sums != 0)
 
-class_names = model.classes_
-
+# Overall Accuracy
 overall_accuracy = accuracy_score(y_test, y_pred)
 overall_accuracy_pct = overall_accuracy * 100
+
+# Per-Class Accuracy
+row_sums = cm.sum(axis=1)
+
+accuracy_per_class = np.divide(cm.diagonal(), row_sums, out=np.zeros_like(cm.diagonal(), dtype=float), where=row_sums != 0)
+
+class_names = model.classes_
 
 plt.figure(figsize=(8, 6))
 plt.plot(class_names, accuracy_per_class, marker='o', linestyle='-', color='green', linewidth=2, label='Per-Class Accuracy')
 plt.axhline(y=overall_accuracy, color='red', linestyle='--', linewidth=2, label=f'Overall Accuracy ({overall_accuracy_pct:.2f}%)')
 
-# Add value labels above points
+# Add text labels above the points
 for i, v in enumerate(accuracy_per_class):
     plt.text(i, v + 0.02, f"{v:.2f}", ha='center')
     
-plt.title("Accuracy Chart")
+plt.title("Accuracy Chart per Activity Type")
 plt.xlabel("Activity Type")
-plt.ylabel("Accuracy")
-plt.ylim(0, 1)
+plt.ylabel("Accuracy (0.0 - 1.0)")
+plt.ylim(0, 1.15)
 plt.grid(alpha=0.3)
 plt.legend()
 plt.tight_layout()
 plt.show()
 
-print(f"\nOverall Model Accuracy: {overall_accuracy_pct:.2f}%")  # Print overall accuracy
+print(f"\nOverall Model Accuracy: {overall_accuracy_pct:.2f}%")
