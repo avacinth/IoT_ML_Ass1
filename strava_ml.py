@@ -6,11 +6,18 @@ import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
 # 1.  Load dataset
-df_train = pd.read_csv("FINALpublicdataset.csv")    # Training Data
+df_train = pd.read_csv("test1.csv")    # Training Data
 df_test = pd.read_csv("FINALpersonaldataset.csv")   # Testing Data
 
 # 2. Defining features
-features = ["Distance_km", "Elapsed Time", "Moving Time", "Elevation Gain", "Average Speed"]
+features = ["Distance_km", 
+    "Elapsed Time", 
+    "Moving Time", 
+    "Average Speed", 
+    "Elevation Gain", 
+    "Max Speed",
+    "Max Grade",
+    "Average Grade"]
 
 X_train = df_train[features]         # Independent variables
 y_train = df_train["Activity Type"]  # Dependent/Target variable
@@ -48,7 +55,6 @@ result = df_test[["Activity ID"] + features + ["Predicted Activity Type"]].copy(
 print("Prediction Results on the TEST dataset (First 10 rows)")
 print(result.head(10).to_string(index=False))
 
-# 6.  Accuracy & Metrics
 y_pred = df_test["Predicted Activity Type"]
 
 # Confusion Matrix
